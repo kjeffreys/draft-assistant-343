@@ -1,0 +1,109 @@
+Fantasy Draft Assistant — Product Requirements Document (PRD)
+v1.1 • June 18 2025 (zero-cost stack)
+
+1 Purpose & Vision
+Build a 100 % free-to-run, offline-capable PWA that helps you draft the highest-EV roster in any redraft league by:
+
+Auto-loading up-to-date ADP, projections, injuries, bye weeks.
+
+Persisting the entire draft board locally so a refresh or loss of signal never hurts.
+
+Surfacing Smart-Pick guidance that blends VOR, positional drop-off, bye-week balance, roster needs and user-defined flags.
+
+Learning from historical drafts (yours + league) to sharpen future recommendations.
+
+Success Metric → Finish every draft with a top-3 projected roster per FantasyPros power rankings; app reacts < 5 s after each pick.
+
+2 Target Users & Platforms
+Persona	Device(s)	Situation
+Primary drafter (you)	iPhone / iPad (Safari PWA)	Live draft in home/ESPN room
+Alternate use	Laptop/desktop (Chrome/Edge)	Mock drafts, research
+Future adopters	Android, desktop	Friends who reuse app
+
+Minimum browser: iOS 15+, Chrome 117+, 10 MB local storage.
+
+3 Functional Requirements
+ID	Feature	Detail
+F-1	Dynamic data ingest	Nightly Python ETL pulls → public/players_YYYY.json:
+• Sleeper players & ADP
+• FantasyPros projection CSVs
+• Depth charts & injuries
+F-2	League import	User pastes Sleeper or Yahoo league ID; the app infers roster slots, scoring, keepers.
+F-3	Real-time draft board	One-tap “Taken” marks player; colour by team; undo supported.
+F-4	Local persistence	Draft state ⮕ IndexedDB (Dexie) with navigator.storage.persist(); export/import JSON backup.
+F-5	Multi-league support	Namespaced sessions {season}:{leagueId}; unlimited drafts stored.
+F-6	Smart-Pick engine	score = VOR + DropOff + ByeAdj + RosterNeed + FlagBoost; user sliders tune weights.
+F-7	Search & filters	Fuzzy search, position tabs, hide drafted/injured, “Targets” list.
+F-8	Bye-week heat-map	Grid showing #starters per week; warning if > X starters share bye.
+F-9	Tier drop-off alert	Badge “⚠ Last of Tier” when next player’s VOR delta exceeds threshold.
+F-10	Custom flags/tiers	Long-press on player row → tag “Target”, “Fade”, custom colour.
+F-11	Historical analytics	ETL stores pick order; Python scikit-learn trains small GBM → exported to TF.js; browser predicts “% chance player lasts”.
+F-12	Offline-first PWA	Service-worker caches shell + latest JSON/model. Works offline for 24 h.
+F-13	Accessibility	4.5:1 contrast, dark mode, haptic on pick confirm.
+
+4 Non-Functional Requirements
+Category	Target
+Performance	≤ 1 s first paint (cached) • ≤ 5 s recompute after pick
+Reliability	99.5 % uptime for GitHub Pages during Aug–Sep
+Storage	≤ 5 MB per season in IndexedDB
+Security	No PII beyond email if OAuth used; tokens never leave device
+Cost	$0 infrastructure forever; no “free-tier” risk
+Maintainability	80 % unit-test coverage; CI on every PR
+Compliance	MIT licence; assets public-domain or CC-BY
+
+5 Technology Stack (all permissive, cost-free)
+Layer	Tool	Rationale
+Frontend	React 18 + TypeScript via Vite	Familiar; largest ecosystem
+UI kit	Tamagui (RN-web)	Mobile-first styling
+State	Zustand	Tiny, hook-based
+Local DB	Dexie (IndexedDB)	Fast queries, hooks
+Charts	Recharts	SVG, no D3 bloat
+ETL + ML	Python 3.12, pandas, pysleeper, scikit-learn, joblib	Rich FF APIs, simple model export
+Model inference	TensorFlow.js (< 1 MB weights)	Runs fully in browser
+CI / Hosting	GitHub Actions (nightly cron) + GitHub Pages (static)	Permanent free
+
+6 Data Flow
+Nightly 03:00 UTC
+GitHub Action → python etl/build_dataset.py & train_model.py → commit updated JSON + model.json to main.
+
+Merge to main triggers Pages Deploy Action → bundles React PWA → pushes to gh-pages branch.
+
+User loads PWA → service-worker caches shell + /public/*.json + model.
+
+During draft:
+
+mark pick → Dexie write
+
+Smart-Pick overlay reads cache + model → shows top picks in < 100 ms.
+
+User exports draft JSON for archival.
+
+7 Project Milestones (6 × 2-week sprints)
+Sprint	Deliverables
+1	Repo initialise, README, PRD, Vite+React scaffold, Pages deploy
+2	Tamagui UI skeleton, Dexie schema, league import screen
+3	Sleeper/FantasyPros ETL, nightly GitHub Action, player list loading
+4	Draft board interactions, offline persistence, bye-week heat-map
+5	Smart-Pick engine, tier alerts, export/import backups
+6	TF.js availability model, Lighthouse ≥ 90, beta testing & polish
+
+8 Risks & Mitigations
+Risk	Impact	Mitigation
+Upstream API changes / rate-limits	Data gaps	Cache results locally; back-off; fallback scrape ESPN CSV
+GitHub Actions quota exceeded	Build failures	Public repo → unlimited minutes; keep ETL < 5 min
+Model drift / bad projections	Poor advice	Weekly retrain; display “projection as of DATE”
+User device storage cleared	Draft loss	Offer manual “Export Draft” JSON to iCloud/Drive
+Ecosystem dep breaks	Build abort	Dependabot alerts; pin versions, CI fails fast
+
+9 Definition of Done
+All functional items (F-1 … F-13) pass Cypress e2e tests.
+
+PWA Lighthouse score ≥ 90 (perf, a11y, best-practices).
+
+Nightly Action green seven consecutive days.
+
+Draft completion offline & online verified.
+
+README and changelog up-to-date; PRD reflects shipped scope.
+
+Maintainers: Kyle Jeffreys (kjeffreys (Github))
