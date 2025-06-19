@@ -8,13 +8,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "dexie": "^3.2.4",
+    "fuse.js": "^6.6.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tamagui": "^1.92.0",
-    "zustand": "^4.4.2",
-    "dexie": "^3.2.4",
+    "react-router-dom": "^6.23.0",
     "recharts": "^2.9.0",
-    "react-router-dom": "^6.23.0"
+    "tamagui": "^1.92.0",
+    "zustand": "^4.4.2"
   },
   "devDependencies": {
     "@types/react": "^19.1.8",

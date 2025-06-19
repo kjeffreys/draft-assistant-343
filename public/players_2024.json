@@ -1,7 +1,7 @@
 [
-  {"id": 1, "name": "Christian McCaffrey", "position": "RB", "team": "SF"},
-  {"id": 2, "name": "Justin Jefferson", "position": "WR", "team": "MIN"},
-  {"id": 3, "name": "Ja'Marr Chase", "position": "WR", "team": "CIN"},
-  {"id": 4, "name": "Travis Kelce", "position": "TE", "team": "KC"},
-  {"id": 5, "name": "Bijan Robinson", "position": "RB", "team": "ATL"}
+  {"id": 1, "name": "Christian McCaffrey", "position": "RB", "team": "SF", "vor": 100, "injured": false},
+  {"id": 2, "name": "Justin Jefferson", "position": "WR", "team": "MIN", "vor": 98, "injured": false},
+  {"id": 3, "name": "Ja'Marr Chase", "position": "WR", "team": "CIN", "vor": 95, "injured": false},
+  {"id": 4, "name": "Travis Kelce", "position": "TE", "team": "KC", "vor": 85, "injured": true},
+  {"id": 5, "name": "Bijan Robinson", "position": "RB", "team": "ATL", "vor": 90, "injured": false}
 ]

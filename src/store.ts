@@ -14,6 +14,8 @@ export interface Player {
   byeWeek?: number
   /** user flag boost (positive or negative) */
   flagBoost?: number
+  /** injury status */
+  injured?: boolean
 }
 
 interface DraftState {
