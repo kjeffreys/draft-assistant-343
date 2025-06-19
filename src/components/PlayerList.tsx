@@ -2,12 +2,14 @@ import { useMemo, useState } from 'react'
 import Fuse from 'fuse.js'
 import { useDraftStore } from '../store'
 import { useScoredPlayers } from '../hooks/useScoredPlayers'
+import { useAvailabilityModel, predictChance } from '../hooks/useAvailabilityModel'
 
 export default function PlayerList() {
   const players = useScoredPlayers()
   const picks = useDraftStore((s) => s.picks)
   const toggleTaken = useDraftStore((s) => s.toggleTaken)
   const setFlagColor = useDraftStore((s) => s.setFlagColor)
+  const availabilityModel = useAvailabilityModel()
 
   const [query, setQuery] = useState('')
   const [pos, setPos] = useState<string>('ALL')
@@ -85,6 +87,7 @@ export default function PlayerList() {
               {p.name}
             </span>{' '}
             ({p.position}-{p.team}) - {p.score.toFixed(2)}{' '}
+            <em>{(predictChance(availabilityModel, p) * 100).toFixed(0)}% chance lasts</em>{' '}
             {tierBreaks.has(p.id) && <span style={{ color: 'red' }}>⚠ Last Tier</span>}{' '}
             <button onClick={() => toggleTaken(p.id)}>
               {isTaken(p.id) ? 'Undo' : 'Taken'}
