@@ -1,9 +1,11 @@
 import { FormEvent, useState } from 'react'
 import { useLeagueStore } from '../state/leagueStore'
+import { useDraftStore } from '../store'
 
 export default function ImportLeague() {
   const [leagueId, setLeagueId] = useState('')
   const setRosterSlots = useLeagueStore((s) => s.setRosterSlots)
+  const setSession = useDraftStore((s) => s.setSession)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -17,6 +19,9 @@ export default function ImportLeague() {
       const slots = data.roster_positions || data.settings?.roster_positions
       if (Array.isArray(slots)) {
         setRosterSlots(slots)
+      }
+      if (data.season) {
+        await setSession(`${data.season}:${leagueId}`)
       }
     } catch (err) {
       console.error(err)
