@@ -2,6 +2,7 @@ import Dexie, { Table } from 'dexie'
 
 export interface DraftPick {
   id?: number
+  session: string
   playerId: number
   timestamp: number
 }
@@ -12,7 +13,7 @@ class DraftDB extends Dexie {
   constructor() {
     super('draftDB')
     this.version(1).stores({
-      picks: '++id,playerId,timestamp',
+      picks: '++id,session,playerId,timestamp',
     })
   }
 }
