@@ -7,13 +7,24 @@ export interface DraftPick {
   timestamp: number
 }
 
+export interface PlayerFlag {
+  id?: number
+  playerId: number
+  color: string
+}
+
 class DraftDB extends Dexie {
   picks!: Table<DraftPick, number>
+  flags!: Table<PlayerFlag, number>
 
   constructor() {
     super('draftDB')
     this.version(1).stores({
       picks: '++id,session,playerId,timestamp',
+    })
+    this.version(2).stores({
+      picks: '++id,session,playerId,timestamp',
+      flags: '++id,playerId,color',
     })
   }
 }
