@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { db, DraftPick } from './db'
+import { db, DraftPick, PlayerFlag } from './db'
 
 export interface Player {
   id: number
@@ -14,6 +14,8 @@ export interface Player {
   byeWeek?: number
   /** user flag boost (positive or negative) */
   flagBoost?: number
+  /** optional flag color chosen by user */
+  flagColor?: string
   /** injury status */
   injured?: boolean
 }
@@ -24,6 +26,7 @@ interface DraftState {
   picks: DraftPick[]
   setSession: (s: string) => Promise<void>
   loadPlayers: () => Promise<void>
+  setFlagColor: (playerId: number, color: string | null) => Promise<void>
   toggleTaken: (playerId: number) => Promise<void>
   undoPick: (id: number) => Promise<void>
 }
@@ -41,7 +44,29 @@ export const useDraftStore = create<DraftState>((set, get) => ({
     const players: Player[] = await res.json()
     const { session } = get()
     const picks = await db.picks.where('session').equals(session).toArray()
-    set({ players, picks })
+    const flags = await db.flags.toArray()
+    const withFlags = players.map((p) => {
+      const f = flags.find((fl) => fl.playerId === p.id)
+      return f ? { ...p, flagColor: f.color } : p
+    })
+    set({ players: withFlags, picks })
+  },
+  setFlagColor: async (playerId: number, color: string | null) => {
+    const existing = await db.flags.where('playerId').equals(playerId).first()
+    if (color) {
+      if (existing && existing.id !== undefined) {
+        await db.flags.update(existing.id, { color })
+      } else {
+        await db.flags.add({ playerId, color })
+      }
+    } else if (existing && existing.id !== undefined) {
+      await db.flags.delete(existing.id)
+    }
+    set((state) => ({
+      players: state.players.map((p) =>
+        p.id === playerId ? { ...p, flagColor: color ?? undefined } : p
+      ),
+    }))
   },
   toggleTaken: async (playerId: number) => {
     const state = get()

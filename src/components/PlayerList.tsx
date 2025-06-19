@@ -7,6 +7,7 @@ export default function PlayerList() {
   const players = useScoredPlayers()
   const picks = useDraftStore((s) => s.picks)
   const toggleTaken = useDraftStore((s) => s.toggleTaken)
+  const setFlagColor = useDraftStore((s) => s.setFlagColor)
 
   const [query, setQuery] = useState('')
   const [pos, setPos] = useState<string>('ALL')
@@ -75,11 +76,30 @@ export default function PlayerList() {
       <ul>
         {results.map((p) => (
           <li key={p.id}>
-            {p.name} ({p.position}-{p.team}) - {p.score.toFixed(2)}{' '}
+            <span
+              style={{
+                backgroundColor: p.flagColor || 'transparent',
+                padding: '0 0.25rem',
+              }}
+            >
+              {p.name}
+            </span>{' '}
+            ({p.position}-{p.team}) - {p.score.toFixed(2)}{' '}
             {tierBreaks.has(p.id) && <span style={{ color: 'red' }}>⚠ Last Tier</span>}{' '}
             <button onClick={() => toggleTaken(p.id)}>
               {isTaken(p.id) ? 'Undo' : 'Taken'}
-            </button>
+            </button>{' '}
+            <input
+              type="color"
+              value={p.flagColor || '#ffffff'}
+              onChange={(e) =>
+                setFlagColor(
+                  p.id,
+                  e.target.value === '#ffffff' ? null : e.target.value
+                )
+              }
+              style={{ verticalAlign: 'middle', marginLeft: '0.5rem' }}
+            />
           </li>
         ))}
       </ul>
