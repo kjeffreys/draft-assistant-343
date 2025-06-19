@@ -1,0 +1,50 @@
+name: Deploy Vite site to GitHub Pages
+
+on:
+  push:
+    branches: [main]        # every commit to main triggers a deploy
+  workflow_dispatch: {}     # manual “Run workflow” button in Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write           # required for actions/deploy-pages
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true  # serialise deploys
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the site
+        run: pnpm build
+
+      - name: Upload static files
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist           # vite’s output folder
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
