@@ -11,6 +11,7 @@ Fantasy Draft Assistant helps you draft the highest-expected-value roster in any
 ```bash
 pnpm install
 pnpm dev
+# or npm install && npm run dev
 ```
 
 ## About the Stack

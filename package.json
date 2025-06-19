@@ -1,6 +1,7 @@
 {
   "name": "draft-assistant-343",
   "version": "0.0.0",
+  "homepage": "https://kjeffreys.github.io/draft-assistant-343",
   "private": true,
   "scripts": {
     "dev": "vite",
