@@ -1,0 +1,7 @@
+[
+  {"id": 1, "name": "Christian McCaffrey", "position": "RB", "team": "SF"},
+  {"id": 2, "name": "Justin Jefferson", "position": "WR", "team": "MIN"},
+  {"id": 3, "name": "Ja'Marr Chase", "position": "WR", "team": "CIN"},
+  {"id": 4, "name": "Travis Kelce", "position": "TE", "team": "KC"},
+  {"id": 5, "name": "Bijan Robinson", "position": "RB", "team": "ATL"}
+]
