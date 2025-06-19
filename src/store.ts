@@ -6,6 +6,14 @@ export interface Player {
   name: string
   position: string
   team: string
+  /** value over replacement */
+  vor?: number
+  /** positional drop-off score */
+  dropOff?: number
+  /** bye week number */
+  byeWeek?: number
+  /** user flag boost (positive or negative) */
+  flagBoost?: number
 }
 
 interface DraftState {

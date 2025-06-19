@@ -1,7 +1,8 @@
 import { useDraftStore } from '../store'
+import { useScoredPlayers } from '../hooks/useScoredPlayers'
 
 export default function PlayerList() {
-  const players = useDraftStore((s) => s.players)
+  const players = useScoredPlayers()
   const picks = useDraftStore((s) => s.picks)
   const toggleTaken = useDraftStore((s) => s.toggleTaken)
 
@@ -15,7 +16,7 @@ export default function PlayerList() {
           .filter((p) => !isTaken(p.id))
           .map((p) => (
             <li key={p.id}>
-              {p.name} ({p.position}-{p.team}){' '}
+              {p.name} ({p.position}-{p.team}) - {p.score.toFixed(2)}{' '}
               <button onClick={() => toggleTaken(p.id)}>Taken</button>
             </li>
           ))}

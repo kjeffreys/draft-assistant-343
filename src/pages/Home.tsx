@@ -2,6 +2,7 @@
 import { useEffect } from 'react'
 import PlayerList from '../components/PlayerList'
 import DraftPicks from '../components/DraftPicks'
+import ScoringSliders from '../components/ScoringSliders'
 import { useDraftStore } from '../store'
 import { Link } from 'react-router-dom'
 
@@ -15,6 +16,7 @@ export default function Home() {
   return (
     <main>
       <h1>Fantasy Draft Assistant</h1>
+      <ScoringSliders />
       <div style={{ display: 'flex', gap: '2rem' }}>
         <PlayerList />
         <DraftPicks />
