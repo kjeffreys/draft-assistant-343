@@ -39,8 +39,14 @@ export const useDraftStore = create<DraftState>((set, get) => ({
     const picks = await db.picks.where('session').equals(s).toArray()
     set({ session: s, picks })
   },
-  loadPlayers: async () => {
-    const res = await fetch('/players_2024.json')
+  loadPlayers: async () =>
+  {
+    const season = Number(import.meta.env.VITE_SEASON ?? new Date().getFullYear());
+    const url    = `${import.meta.env.BASE_URL}players_${season}.json`;
+    const res    = await fetch(url);
+
+
+    // const res = await fetch('/players_2024.json')
     const players: Player[] = await res.json()
     const { session } = get()
     const picks = await db.picks.where('session').equals(session).toArray()
