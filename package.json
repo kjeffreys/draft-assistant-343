@@ -17,6 +17,7 @@
     "react-router-dom": "^6.23.0",
     "recharts": "^2.9.0",
     "tamagui": "^1.92.0",
+    "workbox-window": "^7",
     "zustand": "^4.4.2"
   },
   "devDependencies": {
