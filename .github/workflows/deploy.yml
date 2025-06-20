@@ -1,4 +1,4 @@
-# .github/workflows/deploy.yml  (replace existing file)
+# .github/workflows/deploy.yml  ← replace the whole file with this
 name: Deploy Vite site to GitHub Pages
 
 on:
@@ -12,33 +12,31 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # 1. check out code
       - uses: actions/checkout@v4
 
-      # 2. install Node 20
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
+          cache: npm            # we’ll cache the *npm* dir; fine for pnpm too
 
-      # 3. put pnpm 8.x on PATH  ← NEW (must come *before* any pnpm command)
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-          run_install: false          # we’ll run install in the next step
+      # ---------- install pnpm and prove it exists ----------
+      - name: Install pnpm@8
+        run: |
+          npm install -g pnpm@8
+          echo "PNPM version -> $(pnpm --version)"
 
-      # 4. install deps & build
+      # ---------- install deps & build ----------
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
 
-      # 5. upload the *dist* folder
+      # ---------- upload dist/ for Pages ----------
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
@@ -47,8 +45,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      name: github-pages                # this *must* stay exactly this
     steps:
-      - id: deploy
-        uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v4
