@@ -1,42 +1,63 @@
 name: Deploy Vite site to GitHub Pages
 
+# ─────────────────────────────────────────────────────────────
+# 1. WHEN to run
+#    – every push to main
+#    – manual dispatch
+# ─────────────────────────────────────────────────────────────
 on:
   push:
-    branches: [main]        # every commit to main triggers a deploy
-  workflow_dispatch: {}     # manual “Run workflow” button in Actions tab
+    branches: [main]
+  workflow_dispatch: {}
 
+# ─────────────────────────────────────────────────────────────
+# 2. Repo & Pages permissions (write is needed for deployment)
+# ─────────────────────────────────────────────────────────────
 permissions:
   contents: read
   pages: write
-  id-token: write           # required for actions/deploy-pages
+  id-token: write
 
+# Make sure only one deploy runs at a time
 concurrency:
   group: "pages"
-  cancel-in-progress: true  # serialise deploys
+  cancel-in-progress: true
 
+# ─────────────────────────────────────────────────────────────
+# 3. Jobs
+# ─────────────────────────────────────────────────────────────
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
 
+    steps:
+      # ----- 3-A checkout source -----
+      - name: Checkout source
+        uses: actions/checkout@v4.1.1
+
+      # ----- 3-B set up Node -----
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: 20
-          cache: pnpm
+          cache: 'pnpm'
 
-      - name: Install deps
+      # ----- 3-C add pnpm via Corepack -----
+      - name: Enable pnpm
+        run: corepack enable pnpm
+
+      # ----- 3-D install deps & build -----
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build the site
         run: pnpm build
 
-      - name: Upload static files
-        uses: actions/upload-pages-artifact@v3
+      # ----- 3-E upload static files as artifact -----
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3.0.1
         with:
-          path: ./dist           # vite’s output folder
+          path: ./dist
 
   deploy:
     needs: build
@@ -44,7 +65,8 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v4.0.0
