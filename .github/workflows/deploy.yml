@@ -1,66 +1,45 @@
+# .github/workflows/deploy.yml  (replace existing file)
 name: Deploy Vite site to GitHub Pages
 
-# ─────────────────────────────────────────────────────────────
-# 1. WHEN to run
-#    – every push to main
-#    – manual dispatch
-# ─────────────────────────────────────────────────────────────
 on:
   push:
     branches: [main]
   workflow_dispatch: {}
 
-# ─────────────────────────────────────────────────────────────
-# 2. Repo & Pages permissions (write is needed for deployment)
-# ─────────────────────────────────────────────────────────────
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Make sure only one deploy runs at a time
 concurrency:
   group: "pages"
   cancel-in-progress: true
 
-# ─────────────────────────────────────────────────────────────
-# 3. Jobs
-# ─────────────────────────────────────────────────────────────
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      # ----- 3-A checkout source -----
-      - name: Checkout source
-        uses: actions/checkout@v4.1.1
+      # 1. check out code
+      - uses: actions/checkout@v4
 
-      # ----- 3-B set up Node -----
-      - name: Set up Node
-        uses: actions/setup-node@v4.0.2
+      # 2. install Node 20
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: pnpm
 
-      # ----- 3-B.1 install pnpm globally -----
-      - name: Install pnpm
-        run: npm install -g pnpm@8
+      # 3. put pnpm 8.x on PATH  ← NEW (must come *before* any pnpm command)
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false          # we’ll run install in the next step
 
-      # ----- 3-C install deps & build -----
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      # 4. install deps & build
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
 
-
-      # ----- 3-D install deps & build -----
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build the site
-        run: pnpm build
-
-      # ----- 3-E upload static files as artifact -----
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3.0.1
+      # 5. upload the *dist* folder
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
 
@@ -69,9 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4.0.0
+      - id: deploy
+        uses: actions/deploy-pages@v4
