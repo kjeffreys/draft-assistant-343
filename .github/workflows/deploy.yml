@@ -42,9 +42,14 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
-      # ----- 3-C add pnpm via Corepack -----
-      - name: Enable pnpm
-        run: corepack enable pnpm
+      # ----- 3-B.1 install pnpm globally -----
+      - name: Install pnpm
+        run: npm install -g pnpm@8
+
+      # ----- 3-C install deps & build -----
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
 
       # ----- 3-D install deps & build -----
       - name: Install dependencies
